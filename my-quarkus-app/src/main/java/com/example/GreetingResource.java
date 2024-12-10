@@ -23,13 +23,13 @@ public class GreetingResource {
 
     @GET
     @Path("/daysBetween")
-    @Produces(MediaType.TEXT_HTML)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response daysBetween(@QueryParam("startDate") String startDate, @QueryParam("endDate") String endDate) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
         if (!isValidDate(startDate, formatter) || !isValidDate(endDate, formatter)) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("<div style='text-align: center; font-size: 24px; color: red;'>Invalid date format. Please use dd-MM-yyyy.</div>")
+                    .entity("{\"error\": \"" + TemplateRenderer.renderInvalidDateFormat() + "\"}")
                     .build();
         }
 
@@ -37,8 +37,8 @@ public class GreetingResource {
         LocalDate end = LocalDate.parse(endDate, formatter);
         long daysBetween = ChronoUnit.DAYS.between(start, end);
 
-        return Response.ok("<div style='text-align: center; font-size: 64px; color: rainbow;'>"
-                + daysBetween + " days</div>").build();
+        return Response.ok("{\"daysBetween\": \"" + TemplateRenderer.renderDaysBetween(daysBetween) + "\"}")
+                .build();
     }
 
     private boolean isValidDate(String date, DateTimeFormatter formatter) {
